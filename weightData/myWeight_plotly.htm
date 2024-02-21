@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Testtömeg változás</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  <div id="bodyWeightChart" style="height: 400px;"></div>
+
+  <script>
+    const jsonDataUrl = 'https://raw.githubusercontent.com/kaak91/weightData/main/weightData.json';
+
+    fetch(jsonDataUrl)
+      .then(response => response.json())
+      .then(jsonData => {
+        const bodyWeightData = jsonData.map(entry => {
+          return {
+            x: new Date(entry.startTime),
+            y: parseFloat(JSON.parse(entry.samplePoints[0].value).bodyWeight),
+          };
+        });
+
+        const trace = {
+          type: 'scatter',
+          mode: 'lines',
+          x: bodyWeightData.map(entry => entry.x),
+          y: bodyWeightData.map(entry => entry.y),
+          hovertemplate: '%{y:.2f} kg<br>%{x|%Y-%m-%d}',
+          showlegend: false,
+        };
+
+        const layout = {
+          title: 'Testtömeg változás',
+          xaxis: {
+            type: 'date',
+            title: 'Dátum',
+            tickformat: '%Y-%m-%d',
+          },
+          yaxis: {
+            title: 'A mért adat (kg)',
+          },
+          autosize: true,
+          margin: {
+            l: 50,
+            r: 20,
+            t: 50,
+            b: 50,
+          },
+          xaxis_rangeslider_visible: true,
+        };
+
+        Plotly.newPlot('bodyWeightChart', [trace], layout);
+      })
+      .catch(error => console.error('Error fetching JSON:', error));
+  </script>
+</body>
+</html>
