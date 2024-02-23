@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Body Weight, Body Fat, BMI Chart</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  <div id="bodyMetricsChart" style="height: 400px;"></div>
+
+  <script>
+    const jsonDataUrl = 'https://raw.githubusercontent.com/kaak91/weightData/main/weightData.json';
+
+    fetch(jsonDataUrl)
+      .then(response => response.json())
+      .then(jsonData => {
+        const bodyMetricsData = jsonData.map(entry => {
+          const parsedValue = JSON.parse(entry.samplePoints[0].value);
+          return {
+            date: new Date(entry.startTime),
+            bodyWeight: parsedValue.bodyWeight,
+            bodyFat: parsedValue.bodyFat || null,
+            bmi: parsedValue.bmi || null,
+          };
+        });
+
+        const bodyWeightTrace = {
+          type: 'scatter',
+          mode: 'lines',
+          x: bodyMetricsData.map(entry => entry.date),
+          y: bodyMetricsData.map(entry => entry.bodyWeight),
+          name: 'Body Weight (kg)',
+          hovertemplate: '%{y:.2f} kg<br>%{x|%Y-%m-%d}',
+        };
+
+        const bodyFatTrace = {
+          type: 'scatter',
+          mode: 'lines',
+          x: bodyMetricsData.map(entry => entry.date),
+          y: bodyMetricsData.map(entry => entry.bodyFat),
+          name: 'Body Fat (%)',
+          hovertemplate: '%{y:.2f}%<br>%{x|%Y-%m-%d}',
+        };
+
+        const bmiTrace = {
+          type: 'scatter',
+          mode: 'lines',
+          x: bodyMetricsData.map(entry => entry.date),
+          y: bodyMetricsData.map(entry => entry.bmi),
+          name: 'BMI',
+          hovertemplate: '%{y:.2f}<br>%{x|%Y-%m-%d}',
+        };
+
+        const layout = {
+          title: 'Body Metrics Chart',
+          xaxis: {
+            type: 'date',
+            title: 'Date',
+            tickformat: '%Y-%m-%d', // Date format on x-axis
+          },
+          yaxis: {
+            title: 'Metric Value',
+          },
+          autosize: true,
+          margin: {
+            l: 50,
+            r: 20,
+            t: 50,
+            b: 50,
+          },
+          xaxis_rangeslider_visible: true,
+        };
+        Plotly.newPlot('bodyMetricsChart', [bodyWeightTrace, bodyFatTrace, bmiTrace], layout);
+      })
+      .catch(error => console.error('Error fetching JSON:', error));
+  </script>
+</body>
+</html>
