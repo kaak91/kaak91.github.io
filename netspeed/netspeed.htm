@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Box adatok</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div id="myDiv"></div>
+    <script>
+        var csvUrl = 'https://raw.githubusercontent.com/kaak91/kaak91.github.io/main/netspeed/boxdata.csv';
+
+        fetch(csvUrl)
+            .then(response => response.text())
+            .then(csvText => {
+                var rows = csvText.split("\n").slice(1);
+                var time = [];
+                var downloadSpeed = [];
+                var uploadSpeed = [];
+
+                rows.forEach(row => {
+                    var columns = row.split(";");
+                    if (columns.length >= 7) {
+                        time.push(new Date(columns[0]));
+                        downloadSpeed.push(parseFloat(columns[1].split(" ")[0]));
+                        uploadSpeed.push(parseFloat(columns[3].split(" ")[0]));
+                    }
+                });
+
+                var trace1 = {
+                    x: time,
+                    y: downloadSpeed,
+                    mode: 'lines+markers',
+                    name: 'Letöltés (Mbps)'
+                };
+
+                var trace2 = {
+                    x: time,
+                    y: uploadSpeed,
+                    mode: 'lines+markers',
+                    name: 'Feltöltés (Mbps)'
+                };
+
+                var layout = {
+                    title: 'Hálózati sebesség diagram',
+                    xaxis: {
+                        title: {
+                            text: 'Dátum',
+                        },
+                        tickformat: '%Y-%m-%d',
+                    },
+                    yaxis: {
+                        title: 'Sebesség (Mbps)'
+                    }
+                };
+
+                Plotly.newPlot('myDiv', [trace1, trace2], layout);
+            })
+            .catch(error => {
+                console.error("Error fetching CSV:", error);
+            });
+    </script>
+</body>
+</html>
